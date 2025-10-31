@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  # This is the name of your service (e.g., your API server)
+  api-server:
+    # 1. BUILD: Instructs Docker Compose to build the image using the Dockerfile in the current directory (.).
+    # Because you only have one Dockerfile, it will use that one.
+    build:
+      context: .
+      dockerfile: Dockerfile # Explicitly reference the production Dockerfile if you named it "Dockerfile"
+
+    # 2. PORTS: Maps a local port (e.g., 8000) to the container's exposed port (8000, defined in your Dockerfile).
+    # You can change the left side (local port) if 8000 is already in use (e.g., "8080:8000").
+    ports:
+      - "8000:8000"
+
+    # 3. ENVIRONMENT: Optionally define production-specific environment variables for the local test.
+    # Note: Many of these are already in your Dockerfile, but this is how you would override them.
+    environment:
+      - DEBUG=False
+      - PORT=8000
+
+    # 4 CMD
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 # For production
+
+    # 5. RESTART: Ensures the container restarts if it fails (good practice for testing).
+    restart: always

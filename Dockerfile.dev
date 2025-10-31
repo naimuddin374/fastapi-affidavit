@@ -1,0 +1,24 @@
+# Dockerfile.dev (A simplified version for local work)
+
+# 1. BASE IMAGE: Use a full, stable Python image. 
+# We don't use 'slim' because we need development tools like a shell and potentially compilers.
+FROM python:3.11
+
+# 2. WORK DIR: Set a working directory inside the container
+WORKDIR /app
+
+# 3. INSTALL DEPENDENCIES: Copy requirements and install them.
+# The `COPY requirements.txt .` and `RUN pip install` steps are crucial for caching.
+# Note: This is an unoptimized copy/install path, but it's often preferred for simplicity in dev.
+COPY requirements.txt .
+
+# Install necessary Python packages (no cache is good practice)
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 4. EXPOSE PORT: Indicate the primary application port.
+EXPOSE 8000
+
+# 5. ENTRYPOINT/CMD: We leave the main application code copy/startup to Docker Compose.
+# This CMD is just a placeholder. Docker Compose will override this.
+# Leaving it simple allows us to use this image as a consistent development environment.
+CMD ["/bin/bash"]

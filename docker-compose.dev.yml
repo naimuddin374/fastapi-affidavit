@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  ######################################
+  # 1. API SERVICE (FastAPI Application)
+  ######################################
+  api-server:
+    # Build configuration (assuming you have a Dockerfile.dev for development)
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+
+    # Mounts local code for hot reloading
+    volumes:
+      - .:/app
+
+    # Environment variables for the web service
+    environment:
+      - DEBUG=True
+      - PORT=8000
+      # CRITICAL: Define the DB connection string for the FastAPI app
+      # The host name must be the service name: 'db'
+      - DATABASE_URL=postgresql://admin:pass1234@db:5432/affidavit-map-db
+
+    # Map container port to host port
+    ports:
+      - "8000:8000"
+
+    # Command to run the development server with hot-reloading
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+    # NEW: Ensure the DB service is fully up and running before starting the web service
+    # depends_on:
+    #   - db
+#   ######################################
+#   # 2. DB SERVICE (PostgreSQL Database)
+#   ######################################
+#   db:
+#     image: postgres:16-alpine # Use a recent, small PostgreSQL image
+
+#     # NEW: Define authentication and database name (simple for local dev)
+#     environment:
+#       - POSTGRES_USER=admin
+#       - POSTGRES_PASSWORD=pass1234
+#       - POSTGRES_DB=affidavit-map-db
+
+#     # Map the container's default PostgreSQL port (5432) to your host (5432)
+#     # This lets you connect with a local client (like DBeaver or pgAdmin)
+#     ports:
+#       - "5432:5432"
+
+#     # Persist the database data across container restarts
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data/ # Named volume for persistence
+
+# # Define the named volume (required for persistence)
+# volumes:
+#   postgres_data:
