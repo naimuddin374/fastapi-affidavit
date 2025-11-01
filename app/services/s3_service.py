@@ -1,7 +1,6 @@
-import os
 import boto3
 from botocore.exceptions import ClientError
-from typing import Optional, Dict
+from typing import Optional
 
 
 class S3Service:
@@ -10,7 +9,7 @@ class S3Service:
     focusing on generating pre-signed URLs for direct client interaction.
     """
 
-    def __init__(self, bucket_name: str, region_name: str = 'us-east-1'):
+    def __init__(self, bucket_name: str, region_name: str = ''):
         """
         Initializes the S3 client. 
 
