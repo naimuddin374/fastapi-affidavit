@@ -6,9 +6,9 @@ from typing import Optional
 class DocumentBase(BaseModel):
     account_id: int
     name: str
-    path: str
-    # path: Optional[str]
-    created_at: datetime.datetime
+    # path: str
+    path: Optional[str] = None
+    created_at: Optional[datetime.datetime] = datetime.datetime
     # phone: Field(pattern=fr"\+880-\d{10}")
 
 

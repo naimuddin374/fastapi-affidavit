@@ -1,6 +1,14 @@
 import boto3
 from botocore.exceptions import ClientError
 from typing import Optional
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+AWS_BUCKET = os.environ.get("AWS_BUCKET_NAME", "")
+AWS_REGION = os.environ.get("AWS_REGION", "")
 
 
 class S3Service:
@@ -9,7 +17,11 @@ class S3Service:
     focusing on generating pre-signed URLs for direct client interaction.
     """
 
-    def __init__(self, bucket_name: str, region_name: str = ''):
+    def __init__(
+        self,
+        bucket_name: str = AWS_BUCKET,
+        region_name: str = AWS_REGION
+    ):
         """
         Initializes the S3 client. 
 
@@ -46,7 +58,7 @@ class S3Service:
                 Params={
                     'Bucket': self.bucket_name,
                     'Key': file_key,
-                    'ContentType': file_type
+                    'ContentType': file_type.lower()
                 },
                 ExpiresIn=expiration
             )

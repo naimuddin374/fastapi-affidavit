@@ -29,3 +29,12 @@ class Document(Base):
     name = Column(String)
     path = Column(String)
     created_at = Column(DateTime)
+
+    def __repr__(self):
+        # This string will be printed when you use 'print(instance)'
+        # We include the ID and a descriptive field like file_name
+        return (f"id={self.id}, \n"
+                f"account_id={self.account_id}, \n"
+                f"name='{self.name}', \n"
+                f"path='{self.path}', \n"
+                f"created_at='{self.created_at}'")

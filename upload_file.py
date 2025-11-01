@@ -6,7 +6,6 @@ load_dotenv()
 
 
 # Example usage demonstrating the methods
-
 # 1. Setup Environment Variables (MANDATORY for Boto3 to work)
 # In a real FastAPI app, you would set these in your .env file or Docker Compose.
 # os.environ['AWS_ACCESS_KEY_ID'] = 'YOUR_ACCESS_KEY'

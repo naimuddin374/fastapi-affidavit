@@ -3,7 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import app.endpoints.transaction_router as transaction_router
 import app.endpoints.document_router as document_router
+from dotenv import load_dotenv
 
+load_dotenv()
 # App
 app = FastAPI(title="Affidavit Mapp Dummy API")
 
