@@ -1,6 +1,6 @@
 from app.models.models import Document
 from sqlalchemy.orm import Session
-from app.schemas.document_schema import DocumentCreate
+from app.schemas.document_schema import DocumentCreate, DocumentBase
 from app.services.s3_service import S3Service
 import mimetypes
 import os
@@ -32,7 +32,8 @@ def create(db: Session, payload: DocumentCreate):
     db.commit()
     db.refresh(instance)
 
-    instance.path = sign_url
+    instance.sign_url = sign_url
+
     return instance
 
 
@@ -41,7 +42,14 @@ def get_all(db: Session):
 
 
 def get_single(db: Session, id: int):
-    return db.query(Document).filter(Document.id == id).first()
+    result = db.query(Document).filter(Document.id == id).first()
+
+    # Generate get sign url
+    if result and result.name:
+        result.sign_url = s3_service.generate_get_url(
+            file_key=result.name)
+
+    return result
 
 
 def update(db: Session, id: int, payload: DocumentCreate):

@@ -4,20 +4,21 @@ from typing import Optional
 
 
 class DocumentBase(BaseModel):
-    account_id: int
     name: str
-    # path: str
-    path: Optional[str] = None
-    created_at: Optional[datetime.datetime] = datetime.datetime
+    account_id: int
+    created_at: Optional[datetime.datetime] = None
     # phone: Field(pattern=fr"\+880-\d{10}")
 
 
 class DocumentCreate(DocumentBase):
+    created_at: Optional[datetime.datetime] = None
     pass
 
 
-class Document(DocumentBase):
+class DocumentRead(DocumentBase):
     id: int
+    created_at: datetime.datetime
+    sign_url: Optional[str] = None
 
     class config:
         # orm_mode = True # pydantic version < 2.x

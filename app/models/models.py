@@ -1,4 +1,4 @@
-from sqlalchemy.orm import declarative_base
+import datetime
 from app.core.base import Base
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, DateTime
 
@@ -28,7 +28,7 @@ class Document(Base):
     account_id = Column(Integer)
     name = Column(String)
     path = Column(String)
-    created_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.datetime.now)
 
     def __repr__(self):
         # This string will be printed when you use 'print(instance)'

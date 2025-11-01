@@ -12,12 +12,12 @@ router = APIRouter(
 
 
 # Routes
-@router.get("", response_model=List[schemas.Document])
+@router.get("", response_model=List[schemas.DocumentRead])
 def get_all(db: Session = Depends(get_db)):
     return services.get_all(db)
 
 
-@router.get("/{id}", response_model=schemas.Document)
+@router.get("/{id}", response_model=schemas.DocumentRead)
 def get_single(id: int, db: Session = Depends(get_db)):
     data = services.get_single(db, id)
     if data:
@@ -25,20 +25,12 @@ def get_single(id: int, db: Session = Depends(get_db)):
     raise HTTPException(status_code=404, detail="Not found")
 
 
-@router.post("", response_model=schemas.Document)
+@router.post("", response_model=schemas.DocumentRead)
 def create(payload: schemas.DocumentCreate, db: Session = Depends(get_db)):
     return services.create(db, payload)
 
 
-@router.put("/{id}", response_model=schemas.Document)
-def update(id: int, payload: schemas.DocumentCreate, db: Session = Depends(get_db)):
-    db_update = services.update(db, id, payload)
-    if db_update:
-        return db_update
-    raise HTTPException(status_code=404, detail="Not found")
-
-
-@router.delete("/{id}", response_model=schemas.Document)
+@router.delete("/{id}", response_model=schemas.DocumentRead)
 def delete(id: int, db: Session = Depends(get_db)):
     data = services.delete(db, id)
     if data:
