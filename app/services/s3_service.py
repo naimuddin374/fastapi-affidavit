@@ -62,6 +62,7 @@ class S3Service:
                 },
                 ExpiresIn=expiration
             )
+            print('S3 put sign URL===', response)
             return response
         except ClientError as e:
             print(f"Error generating PUT URL for {file_key}: {e}")
@@ -84,6 +85,7 @@ class S3Service:
                 Params={'Bucket': self.bucket_name, 'Key': file_key},
                 ExpiresIn=expiration
             )
+            print('S3 get sign URL===', response)
             return response
         except ClientError as e:
             print(f"Error generating GET URL for {file_key}: {e}")
@@ -104,6 +106,8 @@ class S3Service:
                 Bucket=self.bucket_name,
                 Key=file_key
             )
+
+            print('File deleted successfully from S3 ===', file_key)
             return True
         except ClientError as e:
             print(f"Error deleting object {file_key}: {e}")
@@ -122,6 +126,7 @@ class S3Service:
         try:
             # head_object retrieves metadata without returning the object itself
             self.s3_client.head_object(Bucket=self.bucket_name, Key=file_key)
+            print('Object exist into S3===', file_key)
             return True
         except ClientError as e:
             # The most common failure is a 404 (Not Found)

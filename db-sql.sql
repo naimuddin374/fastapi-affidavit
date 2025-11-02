@@ -1,54 +1,56 @@
--- DEVELOPMENT ENVIRONMENT INITIALIZATION SCRIPT
--- This script performs cleanup of old migration data and creates all tables.
--- Run this manually whenever you need a fresh database slate (e.g., after dropping the database).
+-- ----------------------------------------------------------------------
+-- DANGER: This script will drop ALL data from the listed tables!
+-- Use ONLY for development environment setup.
+-- ----------------------------------------------------------------------
 
----
--- 2. DROP EXISTING TABLES
--- Uncomment the DROP TABLE commands below if you want to completely reset
--- your data and schema to an empty state every time this script runs.
--- WARNING: This will DELETE ALL DATA from these tables.
----
-
--- DROP TABLE IF EXISTS transactions;
--- DROP TABLE IF EXISTS histories;
--- DROP TABLE IF EXISTS documents;
+-- Drop all tables to ensure a clean slate
+DROP TABLE IF EXISTS transactions CASCADE;
+DROP TABLE IF EXISTS histories CASCADE;
+DROP TABLE IF EXISTS documents CASCADE;
 
 
----
--- 3. CREATE INITIAL TABLES (Schema Definition based on current models)
--- Note: Replace INTEGER with SERIAL or BIGSERIAL if you need auto-incrementing IDs.
--- PostgreSQL typically uses SERIAL for auto-incrementing primary keys.
----
-
-CREATE TABLE IF NOT EXISTS transactions (
+-- ----------------------------------------------------------------------
+-- 1. Create the TransactionModel Table
+-- ----------------------------------------------------------------------
+CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
-    -- Add table specific columns here
-    account_id INTEGER,
-    description VARCHAR(255) NOT NULL,
-    amount NUMERIC(10, 2) NOT NULL, -- Using NUMERIC for precise currency representation
-    created_at TIMESTAMP WITHOUT TIME ZONE
+    description VARCHAR NOT NULL,
+    account_id INTEGER NOT NULL,
+    -- Amount: FLOAT(2) corresponds to double precision in PostgreSQL for SQLAlchemy
+    amount DOUBLE PRECISION NOT NULL,
+    -- created_at: Defaults to the time the row is inserted
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    -- updated_at: Note: We cannot set an automatic 'on update' trigger 
+    -- directly with standard SQL in this way. SQLAlchemy handles the 'onupdate' logic.
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS histories (
+-- Add index for quick lookups
+CREATE INDEX ix_transactions_id ON transactions (id);
+CREATE INDEX ix_transactions_description ON transactions (description);
+
+
+-- ----------------------------------------------------------------------
+-- 2. Create the DocumentModel Table
+-- ----------------------------------------------------------------------
+CREATE TABLE documents (
     id SERIAL PRIMARY KEY,
-    -- Add table specific columns here
-    account_id INTEGER,
-    event_type VARCHAR(50) NOT NULL,
-    user_id INTEGER,
-    timestamp TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    account_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL,
+    
+    -- file_type: VARCHAR(50) NOT NULL, default 'statement'
+    file_type VARCHAR(50) NOT NULL DEFAULT 'statement',
+    
+    -- status: VARCHAR(50) NOT NULL, default 'pending'
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    
+    -- created_at: Defaults to the time the row is inserted
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    -- updated_at: Note: We cannot set an automatic 'on update' trigger 
+    -- directly with standard SQL in this way. SQLAlchemy handles the 'onupdate' logic.
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS documents (
-    id SERIAL PRIMARY KEY,
-    -- Add table specific columns here
-    account_id INTEGER,
-    title VARCHAR(255) NOT NULL,
-    file_path VARCHAR(255) NOT NULL,
-    file_type VARCHAR(50), -- Added based on your autogenerate detection
-    upload_date TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-
--- Optional: Add indexes for frequently searched columns
-CREATE INDEX IF NOT EXISTS idx_transactions_description ON transactions (description);
-CREATE INDEX IF NOT EXISTS idx_histories_event_type ON histories (event_type);
+-- Add index for quick lookups
+CREATE INDEX ix_documents_id ON documents (id);

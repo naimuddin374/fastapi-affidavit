@@ -1,6 +1,6 @@
-from app.models.models import Document
+from app.models.models import DocumentModel
 from sqlalchemy.orm import Session
-from app.schemas.document_schema import DocumentCreate, DocumentBase
+from app.schemas.document_schema import DocumentToModel, DocumentRequest
 from app.services.s3_service import S3Service
 import mimetypes
 import os
@@ -10,8 +10,9 @@ import json
 s3_service = S3Service()
 
 
-def create(db: Session, payload: DocumentCreate):
-    instance = Document(**payload.model_dump())
+def create(db: Session, payload: DocumentRequest):
+    payload = DocumentToModel(**payload.model_dump())
+    instance = DocumentModel(**payload.model_dump())
     db.add(instance)
     db.commit()
     db.refresh(instance)
@@ -26,7 +27,6 @@ def create(db: Session, payload: DocumentCreate):
     file_path = f"{instance.account_id}/{instance.id}-{file_name}"
     sign_url = s3_service.generate_put_url(
         file_key=file_path, file_type=mime_type)
-    print('sign_url=', sign_url)
 
     instance.name = file_path
     db.commit()
@@ -38,11 +38,11 @@ def create(db: Session, payload: DocumentCreate):
 
 
 def get_all(db: Session):
-    return db.query(Document).all()
+    return db.query(DocumentModel).all()
 
 
 def get_single(db: Session, id: int):
-    result = db.query(Document).filter(Document.id == id).first()
+    result = db.query(DocumentModel).filter(DocumentModel.id == id).first()
 
     # Generate get sign url
     if result and result.name:
@@ -52,8 +52,8 @@ def get_single(db: Session, id: int):
     return result
 
 
-def update(db: Session, id: int, payload: DocumentCreate):
-    instance = db.query(Document).filter(Document.id == id).first()
+def update(db: Session, id: int, payload: DocumentToModel):
+    instance = db.query(DocumentModel).filter(DocumentModel.id == id).first()
     if instance:
         for key, value in payload.model_dump().items():
             setattr(instance, key, value)
@@ -63,12 +63,11 @@ def update(db: Session, id: int, payload: DocumentCreate):
 
 
 def delete(db: Session, id: int):
-    instance = db.query(Document).filter(Document.id == id).first()
+    instance = db.query(DocumentModel).filter(DocumentModel.id == id).first()
     if instance:
         # Delete file from S3 bucket
         if instance.name:
             result = s3_service.delete_object(file_key=instance.name)
-            print('File deleted successfully from S3 =', instance.name)
             if result == False:
                 return False
 
